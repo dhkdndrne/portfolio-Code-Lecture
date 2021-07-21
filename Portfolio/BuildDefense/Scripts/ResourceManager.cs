@@ -24,13 +24,8 @@ public class ResourceManager : MonoBehaviour
         {
             resourceAmountDic[resourceType] = 0;
         }
-        Test();
     }
 
-    private void Update()
-    {
-        Test();
-    }
     //자원추가
     public void AddResource(ResourceTypeSo resourceType,int amount)
     {

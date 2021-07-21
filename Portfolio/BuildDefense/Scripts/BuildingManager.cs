@@ -22,11 +22,10 @@ public class BuildingManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
         {
             //현재 선택한 건물 타입이 있을경우
-            if(activeBuildingType !=null)
+            if (activeBuildingType != null && CanSpawnBuilding(activeBuildingType, UtilsClass.GetMouseWorldPosition()))
             {
-                Instantiate(activeBuildingType.prefab,UtilsClass.GetMouseWorldPosition(), Quaternion.identity);
+                Instantiate(activeBuildingType.prefab, UtilsClass.GetMouseWorldPosition(), Quaternion.identity);
             }
-           
         }
 
         if (Input.GetKeyDown(KeyCode.A))
@@ -48,5 +47,34 @@ public class BuildingManager : MonoBehaviour
     public BuildingTypeSo GetActiveBuildingType()
     {
         return activeBuildingType;
+    }
+
+    private bool CanSpawnBuilding(BuildingTypeSo buildingType, Vector3 position)
+    {
+        BoxCollider2D boxCollider2D = buildingType.prefab.GetComponent<BoxCollider2D>();
+
+        Collider2D[] collider2DArray = Physics2D.OverlapBoxAll(position + (Vector3)boxCollider2D.offset, boxCollider2D.size, 0);
+
+        bool isAreaClear = collider2DArray.Length == 0;
+        if (!isAreaClear) return false;
+
+        collider2DArray = Physics2D.OverlapCircleAll(position, buildingType.minConstructionRadius);
+
+        foreach (Collider2D collider2D in collider2DArray)
+        {
+            //콜라이더가 건설가능 범위에 들어갔을때
+           BuildingTypeHolder buildingTypeHolder =  collider2D.GetComponent<BuildingTypeHolder>();
+        
+            if(buildingTypeHolder != null)
+            {
+                //BuildingTypeHolder가 있으면
+                if (buildingTypeHolder.buildingType == buildingType)
+                {
+                    //건설범위에 이미 같은 건물이 있다.
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
